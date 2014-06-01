@@ -1,0 +1,54 @@
+.passmeter {
+	font-size: 0.8em;
+	line-height: 0.8em;
+	position: relative;
+	width: 20em;
+}
+
+.passmeter > .passmeter_label, .passmeter > .passmeter_strength {
+	display: inline-block;
+	padding: 0.3em 0;
+	text-decoration: none;
+}
+
+.passmeter > .passmeter_strength {
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+
+.passmeter > .passmeter_rules {
+	display: none;
+}
+
+.passmeter > .passmeter_rules > ul {
+	padding-left: 1.2em;
+}
+
+.passmeter > .passmeter_meter {
+	background-color: gray;
+}
+
+.passmeter > .passmeter_meter, .passmeter > .passmeter_meter > .passmeter_inner {
+	height: 0.5em;
+}
+
+.passmeter > .passmeter_meter[level='weak'] > .passmeter_inner {
+	background-color: #860000;
+}
+
+.passmeter > .passmeter_meter[level='fair'] > .passmeter_inner {
+	background-color: #afac1c;
+}
+
+.passmeter > .passmeter_meter[level='good'] > .passmeter_inner {
+	background-color: #006abd;
+}
+
+.passmeter > .passmeter_meter[level='strong'] > .passmeter_inner {
+	background-color: #00d5d2;
+}
+
+.passmeter > .passmeter_meter[level='strongest'] > .passmeter_inner {
+	background-color: #008600;
+}
