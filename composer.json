@@ -1,0 +1,45 @@
+{
+	"name": "BigE/jquery-passmeter",
+	"description": "",
+	"version": "0.1.0",
+	"homepage": "https://github.com/BigE/jquery-passmeter",
+	"authors": [
+		{
+			"name": "Eric Gach",
+			"email": "eric@php-oop.net",
+			"role": "Developer"
+		}
+	],
+	"keywords": [
+		"password",
+		"strength"
+	],
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "https://github.com/BigE/jquery-passmeter.git"
+		}
+	],
+	"license": [
+		"MIT"
+	],
+	"require": {
+		"robloach/component-installer": "*",
+		"components/jquery": ">=1.11"
+	},
+	"extra": {
+		"component": {
+			"name": "jquery-passmeter",
+			"scripts": [
+				"jquery.passmeter.js"
+			],
+			"styles": [
+				"jquery.passmeter.css"
+			],
+			"files": [
+				"jquery.passmeter.min.css",
+				"jquery.passmeter.min.js"
+			]
+		}
+	}
+}
