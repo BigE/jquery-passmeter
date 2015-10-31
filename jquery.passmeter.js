@@ -76,10 +76,20 @@
 						$.fn.passmeter.focusout(event, settings);
 					}
 				}, settings.confirm);
+
+				$(settings.confirm).keyup(function () {
+					var password = $(settings.password).val(), confpass = $(this).val();
+
+					if (password.length > 0 && password === confpass) {
+						$('.passmeter_confirm > .fa').removeClass('fa-circle-o').addClass('fa-check-circle-o');
+					} else {
+						$('.passmeter_confirm > .fa').removeClass('fa-check-circle-o').addClass('fa-circle-o');
+					}
+				});
 			}
 
 			$(settings.password).keyup(function () {
-				var total = 0, password = $(this).val();
+				var total = 0, password = $(this).val(), confpass = null;
 
 				score.addition.len = password.length;
 				score.addition.lower = $.fn.passmeter.match(/[a-z]/g, password);
@@ -179,6 +189,15 @@
 					$('.passmeter_required > .fa').removeClass('fa-circle-o').addClass('fa-check-circle-o');
 				} else {
 					$('.passmeter_required > .fa').removeClass('fa-check-circle-o').addClass('fa-circle-o');
+				}
+
+				if (settings.confirm !== null) {
+					confpass = $(settings.confirm).val();
+					if (password.length > 0 && password === confpass) {
+						$('.passmeter_confirm > .fa').removeClass('fa-circle-o').addClass('fa-check-circle-o');
+					} else {
+						$('.passmeter_confirm > .fa').removeClass('fa-check-circle-o').addClass('fa-circle-o');
+					}
 				}
 
 				total = $.fn.passmeter.total(score, settings.require);
