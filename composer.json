@@ -1,12 +1,12 @@
 {
 	"name": "BigE/jquery-passmeter",
 	"description": "",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"homepage": "https://github.com/BigE/jquery-passmeter",
 	"authors": [
 		{
 			"name": "Eric Gach",
-			"email": "eric@php-oop.net",
+			"email": "eric.gach@gmail.com",
 			"role": "Developer"
 		}
 	],

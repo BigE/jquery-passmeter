@@ -5,6 +5,7 @@
 			seqLetters = 'abcdefghijklmnopqrstuvwxyz', seqNumbers = '01234567890', seqSymbols = '!@#$%^&*()',
 			passmeter = $('<div></div>').addClass('passmeter').append(
 				$('<a></a>').attr('href', '#').addClass('passmeter_label').text('Password Strength:').click(function (event) {
+					console.log('clicky', event);
 					event.preventDefault();
 					$(this).parent().find('.passmeter_rules').slideToggle();
 				})
@@ -13,18 +14,42 @@
 			).append(
 				$('<div></div>').addClass('passmeter_meter').append($('<div></div>').addClass('passmeter_inner'))
 			).append(
-				$('<div></div>').addClass('passmeter_rules').css('display', 'none')
-					.html('<ul><li>Minimum {0} characters in length</li>' +
-						'<li>Contains {1}/4 of the following items:</li>' +
-						'<ul><li>Uppercase Letters</li>' +
-						'<li>Lowercase Letters</li>' +
-						'<li>Numbers</li>' +
-						'<li>Symbols</li></ul></ul>')
+				$('<div></div>').addClass('passmeter_rules').css('display', 'none').append(
+					$('<ul></ul>').addClass('fa-ul').append(
+						$('<li></li>').addClass('passmeter_min')
+							.html('<i class="fa fa-li fa-circle-o"></i>Minimum {0} characters in length')
+					).append(
+						$('<li></li>').addClass('passmeter_required')
+							.html('<i class="fa fa-li fa-circle-o"></i>Contains {1}/4 of the following items:')
+							.append(
+								$('<ul></ul>').addClass('fa-ul').append(
+									$('<li></li>').addClass('passmeter_upper')
+										.html('<i class="fa fa-li fa-circle-o"></i>Uppercase Letters')
+								).append(
+									$('<li></li>').addClass('passmeter_lower')
+										.html('<i class="fa fa-li fa-circle-o"></i>Lowercase Letters')
+								).append(
+									$('<li></li>').addClass('passmeter_numbers')
+										.html('<i class="fa fa-li fa-circle-o"></i>Numbers')
+								).append(
+									$('<li></li>').addClass('passmeter_symbols')
+										.html('<i class="fa fa-li fa-circle-o"></i>Symbols')
+								)
+							)
+					)
+				)
 			);
 
-		if (settings.selector == null) {
+		if (settings.password == null) {
 			window.console && console.error('cannot initialize password meter due to a missing selector');
 			return this;
+		}
+
+		if (settings.confirm !== null) {
+			$(passmeter).find('.passmeter_required').after(
+				$('<li></li>').addClass('passmeter_confirm')
+					.html('<i class="fa fa-li fa-circle-o"></i>Passwords Match')
+			);
 		}
 
 		return this.each(function () {
@@ -33,19 +58,44 @@
 			$(this).append($(passmeter));
 			$(this).find('.passmeter_rules').html($.fn.passmeter.format($(this).find('.passmeter_rules').html(), settings.min, settings.require));
 
-			$(settings.selector).keyup(function () {
-				var total = 0, password = $(this).val();
-
-				if (password.length >= settings.min) {
-					score.addition.len = password.length;
-					score.addition.lower = $.fn.passmeter.match(/[a-z]/g, password);
-					score.addition.upper = $.fn.passmeter.match(/[A-Z]/g, password);
-					score.addition.numbers = $.fn.passmeter.match(/[0-9]/g, password);
-					score.addition.middle = $.fn.passmeter.match(/[0-9!@#\$%\^&*(){}.,'"]/g, password.substr(1, (password.length - 2)));
-				} else {
-					// reset the score since our length is not long enough
-					score = $.extend(true, {}, $.fn.passmeter.score);
+			$(document).on({
+				'focusin': function (event) {
+					$.fn.passmeter.focusin(event, settings);
+				},
+				'focusout': function (event) {
+					$.fn.passmeter.focusout(event, settings);
 				}
+			}, settings.password);
+
+			if (settings.confirm !== null) {
+				$(document).on({
+					'focusin': function (event) {
+						$.fn.passmeter.focusin(event, settings);
+					},
+					'focusout': function (event) {
+						$.fn.passmeter.focusout(event, settings);
+					}
+				}, settings.confirm);
+
+				$(settings.confirm).keyup(function () {
+					var password = $(settings.password).val(), confpass = $(this).val();
+
+					if (password.length > 0 && password === confpass) {
+						$('.passmeter_confirm > .fa').removeClass('fa-circle-o').addClass('fa-check-circle-o');
+					} else {
+						$('.passmeter_confirm > .fa').removeClass('fa-check-circle-o').addClass('fa-circle-o');
+					}
+				});
+			}
+
+			$(settings.password).keyup(function () {
+				var total = 0, password = $(this).val(), confpass = null;
+
+				score.addition.len = password.length;
+				score.addition.lower = $.fn.passmeter.match(/[a-z]/g, password);
+				score.addition.upper = $.fn.passmeter.match(/[A-Z]/g, password);
+				score.addition.numbers = $.fn.passmeter.match(/[0-9]/g, password);
+				score.addition.middle = $.fn.passmeter.match(/[0-9!@#\$%\^&*(){}.,'"]/g, password.substr(1, (password.length - 2)));
 
 				score.addition.symbols = $.fn.passmeter.match(/[!@#\$%\^&*()\{\}\.,'"]/g, password);
 				score.subtraction.consecutive.lower = $.fn.passmeter.match(/[a-z]+/g, password, true);
@@ -99,11 +149,56 @@
 				}
 
 				score.addition.required = 0;
-				if (score.addition.lower > 0) score.addition.required += 1;
-				if (score.addition.upper > 0) score.addition.required += 1;
-				if (score.addition.numbers > 0) score.addition.required += 1;
-				if (score.addition.symbols > 0) score.addition.required += 1;
-				if (password.length >= settings.min) score.addition.required += 1;
+
+				if (score.addition.lower > 0) {
+					score.addition.required += 1;
+					$('.passmeter_lower > .fa').removeClass('fa-circle-o').addClass('fa-check-circle-o');
+				} else {
+					$('.passmeter_lower > .fa').removeClass('fa-check-circle-o').addClass('fa-circle-o');
+				}
+
+				if (score.addition.upper > 0) {
+					score.addition.required += 1;
+					$('.passmeter_upper > .fa').removeClass('fa-circle-o').addClass('fa-check-circle-o');
+				} else {
+					$('.passmeter_upper > .fa').removeClass('fa-check-circle-o').addClass('fa-circle-o');
+				}
+
+				if (score.addition.numbers > 0) {
+					score.addition.required += 1;
+					$('.passmeter_numbers > .fa').removeClass('fa-circle-o').addClass('fa-check-circle-o');
+				} else {
+					$('.passmeter_numbers > .fa').removeClass('fa-check-circle-o').addClass('fa-circle-o');
+				}
+
+				if (score.addition.symbols > 0) {
+					score.addition.required += 1;
+					$('.passmeter_symbols > .fa').removeClass('fa-circle-o').addClass('fa-check-circle-o');
+				} else {
+					$('.passmeter_symbols > .fa').removeClass('fa-check-circle-o').addClass('fa-circle-o');
+				}
+
+				if (password.length >= settings.min) {
+					score.addition.required += 1;
+					$('.passmeter_min > .fa').removeClass('fa-circle-o').addClass('fa-check-circle-o');
+				} else {
+					$('.passmeter_min > .fa').removeClass('fa-check-circle-o').addClass('fa-circle-o');
+				}
+
+				if (score.addition.required > settings.require) {
+					$('.passmeter_required > .fa').removeClass('fa-circle-o').addClass('fa-check-circle-o');
+				} else {
+					$('.passmeter_required > .fa').removeClass('fa-check-circle-o').addClass('fa-circle-o');
+				}
+
+				if (settings.confirm !== null) {
+					confpass = $(settings.confirm).val();
+					if (password.length > 0 && password === confpass) {
+						$('.passmeter_confirm > .fa').removeClass('fa-circle-o').addClass('fa-check-circle-o');
+					} else {
+						$('.passmeter_confirm > .fa').removeClass('fa-check-circle-o').addClass('fa-circle-o');
+					}
+				}
 
 				total = $.fn.passmeter.total(score, settings.require);
 
@@ -140,11 +235,48 @@
 		});
 	};
 
+	$.fn.passmeter.focusin = function (event, settings) {
+		console.log('focusin', event);
+		if (event.isDefaultPrevented()) return;
+		if ($(event.target).data('clicky') === true) {
+			$(event.target).removeData('clicky');
+		} else {
+			if (settings.confirm && event.currentTarget !== null && event.relatedTarget !== null && (
+					('#' + event.currentTarget.id === settings.password && '#' + event.relatedTarget.id === settings.confirm) ||
+					('#' + event.currentTarget.id === settings.confirm && '#' + event.relatedTarget.id === settings.password)
+				)
+			) {
+				return;
+			}
+
+			$('.passmeter_rules:hidden').slideDown();
+		}
+	};
+
+	$.fn.passmeter.focusout = function (event, settings) {
+		console.log('focusout', event);
+		if (event.isDefaultPrevented()) return;
+		if ($(event.relatedTarget).hasClass('passmeter_label')) {
+			$(event.target).data('clicky', true).focus();
+		} else {
+			if (settings.confirm && event.currentTarget !== null && event.relatedTarget !== null && (
+					('#' + event.currentTarget.id === settings.password && '#' + event.relatedTarget.id === settings.confirm) ||
+					('#' + event.currentTarget.id === settings.confirm && '#' + event.relatedTarget.id === settings.password)
+				)
+			) {
+				return;
+			}
+
+			$('.passmeter_rules:visible').slideUp();
+		}
+	};
+
 	$.fn.passmeter.defaults = {
 		callback: null,
+		confirm: null,
 		min: 6,
-		require: 3,
-		selector: null
+		password: null,
+		require: 3
 	};
 
 	$.fn.passmeter.format = function(format) {
@@ -247,7 +379,7 @@
 			score.total.addition.numbers = 0;
 		}
 
-		total += score.total.addition.len = score.addition.len * 3;
+		total += score.total.addition.len = score.addition.len * 2;
 		total += score.total.addition.middle = score.addition.middle * 2;
 		total += score.total.addition.symbols = score.addition.symbols * 6;
 
