@@ -1,6 +1,6 @@
 .passmeter {
 	font-size: 0.8em;
-	line-height: 0.8em;
+	line-height: 1.2em;
 	position: relative;
 	width: 20em;
 }
@@ -27,6 +27,7 @@
 
 .passmeter > .passmeter_meter {
 	background-color: gray;
+	margin: 0.5em 0;
 }
 
 .passmeter > .passmeter_meter, .passmeter > .passmeter_meter > .passmeter_inner {
@@ -51,4 +52,12 @@
 
 .passmeter > .passmeter_meter[level='strongest'] > .passmeter_inner {
 	background-color: #008600;
+}
+
+.passmeter > .passmeter_rules .fa-circle-o {
+	color: #ff0000;
+}
+
+.passmeter > .passmeter_rules .fa-check-circle-o {
+	color: #008600;
 }
